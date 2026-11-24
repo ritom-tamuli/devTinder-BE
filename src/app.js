@@ -52,7 +52,6 @@ app.get("/user", async (req,res) => {
 //feed api - get all users
 app.get("/feed", async (req, res) => {
     try {
-        const user1 = await User
         const user = await User.find({});
         res.send(user);
     } catch {
@@ -72,12 +71,20 @@ app.delete("/user", async (req, res) => {
 });
 
 //update user
-app.patch("/user", async (req,res) => {
+app.patch("/user/:userId", async (req,res) => {
     const updateData = req.body;
-    const userId = req.body.userId;
+    const userId = req.params?.userId;
     try {
+
+        //api level DATA Sanitization
+        const ALLOWED_UPDATES = ["userId", "password", "skills", "photoUrl", "about", "gender"];
+        const isUpdateAllowed = Object.keys(updateData).every((key) => ALLOWED_UPDATES.includes(key));
+        if(!isUpdateAllowed){
+            throw new Error("Update not Allowed!")
+        }
+
         await User.findByIdAndUpdate(userId, updateData, { runValidators: true });
-        res.send("User data updated!")
+        res.send("User data updated!");
     } catch (error) {
         res.status(400).send("Something went wrong!" + error );
     }

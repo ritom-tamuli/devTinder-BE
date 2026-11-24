@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const validator = require("validator");
 
 const userSchema = new mongoose.Schema({
     firstName: {
@@ -14,12 +15,22 @@ const userSchema = new mongoose.Schema({
         required: true,
         unique: true,
         lowercase: true,
-        trim: true
+        trim: true,
+        validate(val) {
+            if(!validator.isEmail(val)) {
+                throw new Error("Invalid email address " + val );
+            }
+        }
     },
     password: {
         type: String,
         required: true,
-        minLength: 5
+        minLength: 5,
+        validate(val) {
+            if(!validator.isStrongPassword(val)) {
+                throw new Error("Enter a strong password");
+            }
+        }
     },
     age: {
         type: Number,
@@ -35,7 +46,12 @@ const userSchema = new mongoose.Schema({
     },
     photoUrl: {
         type: String,
-        default: "https://static.vecteezy.com/system/resources/thumbnails/036/594/092/small/man-empty-avatar-photo-placeholder-for-social-networks-resumes-forums-and-dating-sites-male-and-female-no-photo-images-for-unfilled-user-profile-free-vector.jpg"
+        default: "https://static.vecteezy.com/system/resources/thumbnails/036/594/092/small/man-empty-avatar-photo-placeholder-for-social-networks-resumes-forums-and-dating-sites-male-and-female-no-photo-images-for-unfilled-user-profile-free-vector.jpg",
+        validate(val) {
+            if(!validator.isURL) {
+                throw new Error("Invalid URL");
+            }
+        }
     },
     skills: {
         type: [String]
